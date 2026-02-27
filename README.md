@@ -1,9 +1,34 @@
 # Induction Motor Drive (IFOC) — MATLAB/Simulink + TI C2000 F28379D
 
 This repository contains a MATLAB/Simulink project implementing an **induction motor drive** supplied by a **VSI inverter** and controlled via **Indirect Field Oriented Control (IFOC)** with **rotor-flux orientation**.  
-The workflow includes a **simulation model** and a **target-oriented model** structured to match TI C2000 (F28379D) constraints.
+The workflow includes a **simulation-only model** for validation and a **Host/Target setup** structured to match TI C2000 (F28379D) constraints.
 
 > Project results and validation plots are included directly in this README (no standalone report).
+
+---
+
+## Repository Overview
+
+### Simulink Models
+This project includes **three Simulink models**:
+
+- **SIM-only model**  
+  Full drive simulation (plant + IFOC) used for validation, plotting, and tuning.  
+  **Not** intended for deployment to the control board.
+
+- **HOST model**  
+  Generates the **speed reference** and **enable signal**, then **transmits them via SCIA** at **100 Hz**.
+
+- **TARGET model**  
+  Receives **speed reference + enable** via SCIA and runs the control algorithm with the required **ADC/PWM/ISR timing** (ADC EOC ISR, SOC from PWM1, etc.).
+
+### MATLAB Scripts & Functions
+- **Nameplate parameter back-calculation**: `scripts/Motor_data_IM_R.m`  
+  Computes motor equivalent-circuit parameters + controller gains from rated/nameplate data (with assumptions).
+
+- **Reference profile generation**:
+  - `scripts/make_ref_profile.m` → builds the full reference sequence used by SIM and/or HOST
+  - `scripts/w_a_profile_quintic_soft_2.m` → support function generating a **quintic smooth speed/acceleration profile** (called by `make_ref_profile.m`)
 
 ---
 
@@ -44,12 +69,12 @@ Motor and controller parameters are derived from nameplate data using `scripts/M
   - nominal magnetizing current
   - breakdown (pull-out) torque
 
-## Model Initialization (Simulink Callback)
+### Model Initialization (Simulink Callback)
 
 The parameter script `scripts/Motor_data_IM_R.m` is executed **automatically** when the Simulink model is initialized.
 
-This is done via:
-**Model Properties → Callbacks → InitFcn**
+This is done via:  
+**Model Properties → Callbacks → InitFcn**  
 where the initialization command is:
 `Motor_data_IM_R;`
 
