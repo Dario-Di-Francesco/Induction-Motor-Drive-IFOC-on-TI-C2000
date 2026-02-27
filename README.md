@@ -9,7 +9,7 @@ The workflow includes a **simulation-only model** for validation and a **Host/Ta
 
 ## Repository Overview
 
-### Simulink Models
+### Simulink Models 
 This project includes **three Simulink models**:
 
 - **SIM-only model**  
