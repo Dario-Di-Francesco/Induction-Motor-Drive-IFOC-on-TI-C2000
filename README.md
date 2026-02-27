@@ -188,10 +188,6 @@ The **Control Loop** block:
 - outputs:
   - `V_ref` → stator voltage reference (space vector / phasor) to the PWM block
   - `rho` → estimated rotor flux angle passed to the PWM block
-  - optional diagnostics (e.g., `err_phi`, `err_omega`, current errors)
-
-![Control Loop internal structure](docs/figures/control_loop_internal.png)
-
 ### Blocks inside the Control Loop
 
 #### 1) Measurement
