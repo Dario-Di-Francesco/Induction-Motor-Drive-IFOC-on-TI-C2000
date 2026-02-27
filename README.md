@@ -234,10 +234,15 @@ Implements the **decoupled d/q current control** and computes the stator voltage
 
 The control algorithm is prepared for transfer to a **target Simulink model** for the **TI F28379D** with the following constraints.
 
-### PWM Mapping (VSI Legs)
-- **PWM1** → inverter leg 1  
-- **PWM2** → inverter leg 2  
-- **PWM3** → inverter leg 3  
+### PWM Mapping (VSI Legs) — C2000 Microcontroller Blockset (ePWM)
+
+In the TARGET Simulink model, the inverter PWM signals are generated using **three ePWM blocks** from the **C2000 Microcontroller Blockset** (one per inverter leg), as shown:
+![Current_Loop block](docs/figures/current_loop.png)
+- **ePWM1 (PWM1)** → inverter leg 1  
+- **ePWM2 (PWM2)** → inverter leg 2  
+- **ePWM3 (PWM3)** → inverter leg 3  
+
+Each ePWM block outputs complementary channels (**ePWMA / ePWMB**) to drive the corresponding inverter leg.
 
 ### ADC Mapping (Measurements + Scaling)
 - **ADCINA2:** phase-1 current (0 → -100 A, 4095 → 100 A)
