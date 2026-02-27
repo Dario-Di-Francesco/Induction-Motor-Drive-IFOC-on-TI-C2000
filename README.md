@@ -263,19 +263,29 @@ In the TARGET Simulink model, phase currents and rotor speed are acquired using 
 
 ![ADC scaling and unit conversion (C2000 Microcontroller Blockset)](docs/figures/adc_scaling.png)
 
-### Timing / Triggering
-- Execute the main control loop inside an **ISR** triggered by **ADC End of Conversion (EOC)**
-- Generate ADC **Start of Conversion (SOC)** from **PWM1** at **counter = 0**
-- Configure PWM in **up/down mode** to achieve **10 kHz sampling frequency**
+### Timing / Triggering — C2000 Microcontroller Blockset (Interrupt + ISR)
 
-### Digital Inputs via SCIA
-- The ISR must receive two inputs:
-  - **speed reference**
-  - **control enable**
-- Acquire these inputs via serial communication using **SCIA** in a **100 Hz synchronous task**
+In the TARGET Simulink model, the control execution is synchronized using **C2000 Microcontroller Blockset** interrupt infrastructure, as shown in `docs/figures/isr_interrupt.png`.
 
----
+- The **main control loop runs inside an ISR** (Interrupt Service Routine), enabled through the C2000 **Interrupt** block.
+- The ISR logic is implemented inside a dedicated **ISR (function-call) subsystem**, which is executed on the interrupt event.
 
-## Suggested Repository Structure
+This timing architecture is used to match the required embedded behavior:
+- **Execute the main control loop inside an ISR** triggered by **ADC End of Conversion (EOC)**
+- **Generate ADC Start of Conversion (SOC)** from **PWM1** when the PWM counter is **equal to zero**
+- Configure PWM in **up/down mode** to achieve a **10 kHz** sampling frequency
 
-Recommended layout (rename files to match your project):
+![Interrupt-driven ISR execution (C2000 Microcontroller Blockset)](docs/figures/isr_interrupt.png)
+
+### Digital Inputs via SCIA (100 Hz task)
+
+The TARGET model receives two digital inputs inside the control ISR:
+- **speed reference** (`w_r_rif`)
+- **control enable**
+
+These signals are acquired via **serial communication (SCIA)** using a **synchronous 100 Hz task**, as shown in `docs/figures/scia_inputs_100hz.png`.
+
+In the HOST side, the speed reference is scaled and packed into a **uint16** payload before transmission (with saturation/limits).  
+On the TARGET side, the received data are unpacked and used to update the reference and enable logic at 100 Hz, while the main control loop continues to run in the ISR.
+
+![SCIA speed reference + enable acquisition (100 Hz task)](docs/figures/scia_inputs_100hz.png)
