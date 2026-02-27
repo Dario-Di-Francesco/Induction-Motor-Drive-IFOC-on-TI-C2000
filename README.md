@@ -237,7 +237,9 @@ The control algorithm is prepared for transfer to a **target Simulink model** fo
 ### PWM Mapping (VSI Legs) — C2000 Microcontroller Blockset (ePWM)
 
 In the TARGET Simulink model, the inverter PWM signals are generated using **three ePWM blocks** from the **C2000 Microcontroller Blockset** (one per inverter leg), as shown:
-![Current_Loop block](docs/figures/current_loop.png)
+
+![Current_Loop block](docs/figures/ePWM.png)
+
 - **ePWM1 (PWM1)** → inverter leg 1  
 - **ePWM2 (PWM2)** → inverter leg 2  
 - **ePWM3 (PWM3)** → inverter leg 3  
