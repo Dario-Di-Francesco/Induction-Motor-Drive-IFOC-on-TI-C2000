@@ -244,10 +244,24 @@ In the TARGET Simulink model, the inverter PWM signals are generated using **thr
 
 Each ePWM block outputs complementary channels (**ePWMA / ePWMB**) to drive the corresponding inverter leg.
 
-### ADC Mapping (Measurements + Scaling)
-- **ADCINA2:** phase-1 current (0 → -100 A, 4095 → 100 A)
-- **ADCINB2:** phase-2 current (0 → -100 A, 4095 → 100 A)
-- **ADCINC2:** speed (0 → -6000 rpm, 4095 → 6000 rpm)
+### ADC Mapping (Measurements + Scaling) — C2000 Microcontroller Blockset (ADC)
+
+In the TARGET Simulink model, phase currents and rotor speed are acquired using **three ADC blocks** from the **C2000 Microcontroller Blockset**, as shown in `docs/figures/adc_scaling.png`. The raw ADC codes are then converted into physical units using offset removal and gain scaling.
+
+- **ADCINA2** → phase-1 stator current `i_s_1`  
+  Scaling: `i_s_1 = (ADC_code - 2048) * (200 / 4095)`  
+  which implements the range **0 → -100 A**, **4095 → 100 A**.
+
+- **ADCINB2** → phase-2 stator current `i_s_2`  
+  Scaling: `i_s_2 = (ADC_code - 2048) * (200 / 4095)`  
+  which implements the range **0 → -100 A**, **4095 → 100 A**.
+
+- **ADCINC2** → rotor speed `w_r`  
+  Scaling (rpm): `rpm = (ADC_code - 2048) * (12000 / 4095)`  
+  then conversion to rad/s: `w_r = rpm * (2*pi/60)`  
+  which implements the range **0 → -6000 rpm**, **4095 → 6000 rpm**.
+
+![ADC scaling and unit conversion (C2000 Microcontroller Blockset)](docs/figures/adc_scaling.png)
 
 ### Timing / Triggering
 - Execute the main control loop inside an **ISR** triggered by **ADC End of Conversion (EOC)**
