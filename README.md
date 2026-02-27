@@ -51,7 +51,7 @@ Motor and controller parameters are derived from nameplate data using `scripts/M
 
 ---
 
-## Project Data (Group 2)
+## Project Data
 
 - Rated power: **33 kW**
 - Rated line voltage: **400 V**
