@@ -230,6 +230,15 @@ Implements the **decoupled d/q current control** and computes the stator voltage
 
 ![Current_Loop block](docs/figures/current_loop.png)
 
+---
+### Result
+
+![Current_Loop block](docs/figures/figure1.png)
+![Current_Loop block](docs/figures/figure2.png)
+![Current_Loop block](docs/figures/figure3.png)
+
+---
+
 ## TI C2000 F28379D Target Constraints (Model Integration)
 
 The control algorithm is prepared for transfer to a **target Simulink model** for the **TI F28379D** with the following constraints.
