@@ -44,6 +44,19 @@ Motor and controller parameters are derived from nameplate data using `scripts/M
   - nominal magnetizing current
   - breakdown (pull-out) torque
 
+## Model Initialization (Simulink Callback)
+
+The parameter script `scripts/Motor_data_IM_R.m` is executed **automatically** when the Simulink model is initialized.
+
+This is done via:
+**Model Properties → Callbacks → InitFcn**
+where the initialization command is:
+`Motor_data_IM_R;`
+
+![Simulink InitFcn callback calling Motor_data_IM_R.m](docs/figures/simulink_initFcn.png)
+
+As a result, motor parameters, controller gains, and scaling constants are loaded into the MATLAB workspace before the simulation starts.
+
 **Outputs (typical):**
 - Equivalent-circuit parameters: `Rs`, `Rr'`, `Lm`, `Lσs`, `Lσr`
 - Control gains (PI): current (d/q), flux/estimator loop, speed loop
