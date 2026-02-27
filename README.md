@@ -112,6 +112,44 @@ Typical signal flow:
 6. Carrier-based PWM + min/max injection → VSI gate commands
 
 ---
+## Plant and Power Stage Modeling (Specialized Power Systems)
+
+The plant (induction motor) and the power stage (three-leg inverter) are modeled using **Simscape Electrical – Specialized Power Systems** blocks:
+`Simscape/Electrical/Specialized Power Systems/`
+
+### Induction Motor Model — *Asynchronous Machine SI Units*
+The induction motor is simulated using the **Asynchronous Machine SI Units** block (Specialized Power Systems library).  
+The block is configured as follows:
+
+- **Rotor type:** Squirrel-cage  
+- **Mechanical input:** Torque `Tm`  
+- **Reference frame:** Stationary  
+- **Load Flow:** Mechanical power = `0 W`  
+- **Electrical parameters (workspace-driven):**
+  - Nominal set: `[Pn, Vn(line-line), fn] = [P_IN_VA, V_ll_n, f_n]`
+  - Stator: `[Rs, Ls] = [R_s, L_sigma_s]`
+  - Rotor: `[Rr', Lr'] = [R_r, L_sigma_r]`
+  - Mutual inductance: `Lm = L_m`
+  - Mechanical: `[J, F, pole pairs] = [J, 0, p]`
+- **Initial conditions:** `[slip, th(deg), ia, ib, ic(A), pha, phb, phc(deg)] = [1 0 0 0 0 0 -120 -240]`
+
+> The parameters above are computed by `scripts/Motor_data_IM_R.m` and loaded automatically at model startup via Simulink `InitFcn`.
+
+![Asynchronous Machine SI Units — Configuration](docs/figures/async_machine_config.png)
+![Asynchronous Machine SI Units — Parameters](docs/figures/async_machine_params.png)
+![Asynchronous Machine SI Units — Load Flow](docs/figures/async_machine_loadflow.png)
+
+### Inverter Model — *Universal Bridge*
+The three-phase inverter is simulated using the **Universal Bridge** block (Specialized Power Systems library), configured as:
+
+- **Number of bridge arms:** `3` (three-leg bridge)  
+- **Power electronic device:** IGBT / Diodes  
+- **Snubber:** `Rs = 1e5 Ω`, `Cs = inf`  
+- **On-state resistance:** `Ron = 1e-3 Ω`  
+- **Forward voltages:** `[Device Vf, Diode Vfd] = [0, 0]`  
+- **Measurements:** None
+
+![Universal Bridge — Parameters](docs/figures/universal_bridge_params.png)
 
 ## TI C2000 F28379D Target Constraints (Model Integration)
 
