@@ -151,6 +151,89 @@ The three-phase inverter is simulated using the **Universal Bridge** block (Spec
 
 ![Universal Bridge — Parameters](docs/figures/universal_bridge_params.png)
 
+## Controller Subsystem (shared in SIM-only and TARGET)
+
+Both the **SIM-only** model and the **TARGET** model include the same **Controller** subsystem (IFOC), shown in `docs/figures/controller_overview.png`.
+
+The Controller:
+- takes as inputs:
+  - `i_s_1`, `i_s_2` → measured stator currents (phase 1 and phase 2)
+  - `w_r_rif` → rotor speed reference
+  - `w_r` → measured rotor speed
+- estimates the internal quantities required by **Indirect Field Oriented Control (IFOC)**
+- controls the induction motor by generating the inverter **duty cycle** `d`
+
+In addition to `d`, the subsystem exposes several monitoring signals (e.g., current errors, speed/flux errors, estimated rotor flux angle, etc.) useful for debugging and validation.
+
+![Controller subsystem](docs/figures/controller_overview.png)
+
+---
+
+### Internal Architecture
+
+The **Controller** is composed of two main blocks:
+1. **Control Loop** → implements IFOC control and generates the voltage reference phasor `V_ref` and the estimated rotor flux angle `rho`
+2. **PWM** → implements the PWM modulation and converts `V_ref` (with `rho`) into duty cycles `d`
+
+![Control Loop](docs/figures/control_loop.png)  
+![PWM](docs/figures/pwm_block.png)
+
+---
+
+## Control Loop Details
+
+The **Control Loop** block:
+- processes `i_s_1`, `i_s_2`, `w_r_rif`, and `w_r`
+- estimates/control variables for IFOC
+- outputs:
+  - `V_ref` → stator voltage reference (space vector / phasor) to the PWM block
+  - `rho` → estimated rotor flux angle passed to the PWM block
+  - optional diagnostics (e.g., `err_phi`, `err_omega`, current errors)
+
+![Control Loop internal structure](docs/figures/control_loop_internal.png)
+
+### Blocks inside the Control Loop
+
+#### 1) Measurement
+Inputs:
+- `i_s_1`, `i_s_2`
+- `rho` (rotor flux angle)
+- `i_s_q_ref` (q-axis stator current reference)
+- `i_m_r_ref` (magnetizing current reference)
+- `w_r` (measured rotor speed)
+
+Outputs:
+- `i_s_d` → measured d-axis stator current
+- `i_s_q` → measured q-axis stator current
+- `i_m_r` → estimated/actual magnetizing current
+- `rho` → updated rotor flux angle estimate
+
+![Measurement block](docs/figures/measurement_block.png)
+
+#### 2) Reference Function Block
+Input:
+- `w_r_rif` (rotor speed reference)
+
+Outputs:
+- `i_m_r_ref` → magnetizing current reference
+- `w_r_ref` (forwarded/conditioned speed reference)
+
+![Reference Function block](docs/figures/reference_function_block.png)
+
+#### 3) Velocity_Flux_Loop
+Uses the measured quantities and references to implement the **speed loop** and the **flux (magnetizing) loop**, defining the control law for:
+- speed regulation
+- rotor flux/magnetization regulation (including field-weakening logic, if enabled)
+
+![Velocity_Flux_Loop block](docs/figures/velocity_flux_loop.png)
+
+#### 4) Current_Loop
+Implements the **decoupled d/q current control** and computes the stator voltage reference:
+- output: `V_ref` (to PWM)
+- plus current-control error signals (for validation)
+
+![Current_Loop block](docs/figures/current_loop.png)
+
 ## TI C2000 F28379D Target Constraints (Model Integration)
 
 The control algorithm is prepared for transfer to a **target Simulink model** for the **TI F28379D** with the following constraints.
