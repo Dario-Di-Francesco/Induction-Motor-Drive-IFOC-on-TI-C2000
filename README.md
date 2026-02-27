@@ -3,6 +3,8 @@
 This repository contains a MATLAB/Simulink project implementing an **induction motor drive** supplied by a **VSI inverter** and controlled via **Indirect Field Oriented Control (IFOC)** with **rotor-flux orientation**.  
 The workflow includes a **simulation model** and a **target-oriented model** structured to match TI C2000 (F28379D) constraints.
 
+> Project results and validation plots are included directly in this README (no standalone report).
+
 ---
 
 ## Project Goals
@@ -34,7 +36,7 @@ Apply a load torque:
 
 ## Parameter Identification (from nameplate)
 
-Derive the induction motor model parameters from nameplate data assuming:
+Motor and controller parameters are derived from nameplate data using `scripts/Motor_data_IM_R.m`, assuming:
 - negligible iron losses
 - negligible mechanical losses
 - realistic values for:
@@ -42,7 +44,10 @@ Derive the induction motor model parameters from nameplate data assuming:
   - nominal magnetizing current
   - breakdown (pull-out) torque
 
-> Add your calculation notes and assumptions in `docs/`.
+**Outputs (typical):**
+- Equivalent-circuit parameters: `Rs`, `Rr'`, `Lm`, `Lσs`, `Lσr`
+- Control gains (PI): current (d/q), flux/estimator loop, speed loop
+- Limits and scalings (ADC/PWM, RMS vs peak conventions)
 
 ---
 
@@ -98,3 +103,5 @@ The control algorithm is prepared for transfer to a **target Simulink model** fo
 ---
 
 ## Suggested Repository Structure
+
+Recommended layout (rename files to match your project):
